@@ -3,22 +3,36 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema({
     FirstName: {
-        type: String
+        type: String,
+        minlength: 3,
+        maxlength: 20,
+        required: true
     },
     LastName: {
-        type: String
+        type: String,
+        minlength: 3,
+        maxlength: 20,
+        required: true
     },
     Age: {
-        type: Number
+        type: Number,
+        required: true,
+        ///add restriction 
+        min: 14,
+        max: 100
     },
     Gender: {
-        type: String
+        type: String,
+        required: true
     },
     emailId: {
-        type: String
+        type: String,
+        unique: true,
+        required: true
     },
     password: {
-        type: String
+        type: String,
+        required: true
     },
     Photo: {
         type: String

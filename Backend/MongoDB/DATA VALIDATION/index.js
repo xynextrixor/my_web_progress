@@ -44,7 +44,8 @@ app.delete("/users/:id", async (req, res) => {
 })
 app.patch("/users/:id", async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const { _id, ...update } = req.body;
+        const user = await User.findByIdAndUpdate(_id, update);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -52,6 +53,7 @@ app.patch("/users/:id", async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
+
 })
 
 main().then(() => {
