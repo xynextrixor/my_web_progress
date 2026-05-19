@@ -9,6 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "express": "^5.2.1",
     "mongobd": "^0.0.1-security.0",
     "mongodb": "^7.2.0",
     "mongoose": "^9.6.2"
