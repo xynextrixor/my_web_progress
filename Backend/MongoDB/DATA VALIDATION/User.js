@@ -23,12 +23,20 @@ const userSchema = new Schema({
     },
     Gender: {
         type: String,
-        required: true
+        required: true,
+        // enum: ["male", "female", "others"]
+        validate(value) {
+            if (!["male", "Female", "Other"].includes(value))
+                throw new error('Invalid Function or Gender')
+        }
     },
     emailId: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        trim: true,
+        lower: true,
+        immutable: true
     },
     password: {
         type: String,
@@ -38,6 +46,6 @@ const userSchema = new Schema({
         type: String
     }
 
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model('User', userSchema);

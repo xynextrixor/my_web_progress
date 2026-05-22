@@ -2,16 +2,37 @@ const express = require('express');
 const app = express();
 const main = require('./database');
 const User = require('./User');
+const VaildUser = require("./utils/Validator")
 
 app.use(express.json());
 app.post("/register", async (req, res) => {
     try {
+        VaildUser(req.body);
+        req.body.password = bcrypt.hash(req.body.password, 10)
+
+
         await User.create(req.body);
         res.send("user created successfully");
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 })
+
+////////Login The Pasword using Thow 
+app.post("/login", async (req, res) => {
+    try {
+        ////////validateThe errror 
+        const people = await User.findById(req.body._id);
+        if (!(req.body.emailId === people.emailId))
+            throw new error("invaild email id");
+        const IsAllow = await bcrypt.compare(req.body.password, people.password);
+        if (!IsAllow)
+            res.send("Login ScuessFully");
+
+    }
+})
+
+
 app.get("/users", async (req, res) => {
     try {
         const users = await User.find();
@@ -20,6 +41,8 @@ app.get("/users", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 })
+
+
 app.get("/users/:id", async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -31,6 +54,9 @@ app.get("/users/:id", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 })
+
+
+
 app.delete("/users/:id", async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
