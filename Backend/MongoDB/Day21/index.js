@@ -13,111 +13,105 @@ app.use(express.json());
 app.use(cookieParser())
 
 
-app.post("/register", async (req,res)=>{
+app.post("/register", async (req, res) => {
 
-    try{
+    try {
 
         // Validate kya uske andar firstName
         validUser(req.body);
-        
+
         //  converting password into hashing
-       req.body.password = await bcrypt.hash(req.body.password,10);
+        req.body.password = await bcrypt.hash(req.body.password, 10);
 
         await User.create(req.body);
         res.send("User Registered Successfully");
     }
-    catch(err){
-        res.send("Error "+ err.message);
+    catch (err) {
+        res.send("Error " + err.message);
     }
 })
 
 
 
-app.post("/login", async(req,res)=>{
+app.post("/login", async (req, res) => {
 
-    try{
+    try {
 
         // validate karna
-        
-        const people = await User.findOne({emailId:req.body.emailId});
-        
+
+        const people = await User.findOne({ emailId: req.body.emailId });
+
         // if(!(req.body.emailId===people.emailId))
         //     throw new Error("Invalid credentials");
 
         const IsAllowed = await bcrypt.compare(req.body.password, people.password);
 
-        if(!IsAllowed)
+        if (!IsAllowed)
             throw new Error("Invalid credentials");
-        
+
 
         // jwt token 
 
-        const token = jwt.sign({_id:people._id, emailId:people.emailId},"Rohit@13412$");
+        const token = jwt.sign({ _id: people._id, emailId: people.emailId }, "Rohit@13412$");
 
-        res.cookie("token",token);
+        res.cookie("token", token);
         res.send("Login Successfully");
 
     }
-    catch(err){
-        res.send("Error: "+err.message);
+    catch (err) {
+        res.send("Error: " + err.message);
     }
 })
-    
-
-app.get("/user",userAuth, async(req,res)=>{
-    
-    try{
-        
-        res.send(req.result);
-    }
-    catch(err){
-       
-        res.send("Error "+err.message);
-    }
 
 
-})
 
-app.delete("/user/:id",userAuth, async (req,res)=>{
 
-    try{
+app.delete("/user/:id", userAuth, async (req, res) => {
+
+    try {
 
         //  authenticate the user: Token
+
         await User.findByIdAndDelete(req.params.id);
         res.send("Deleted Succesfully");
     }
-    catch(err){
-        
-        res.send("Error"+err.message);
+    catch (err) {
+
+        res.send("Error" + err.message);
     }
 
 
 })
 
 
-app.patch("/user",userAuth, async(req,res)=>{
+app.patch("/user", userAuth, async (req, res) => {
 
-    try{
-        const {_id, ...update} = req.body;
-
-        await User.findByIdAndUpdate(_id,update,{"runValidators":true});
-        res.send("Update Succesfully");
+    try {
+        const { token } = req.cookies;
+        if (!token)
+            throw new Error("Token not found");
+        const payload = jwt.verify(token, "Anmol@13412$");
+        const { _id } = payload;
+        if (!_id)
+            throw new Error("Invalid token");
+        const result = await User.findByIdAndUpdate(_id);
+        res.send(result);
     }
-    catch(err){
-        res.send("Error "+err.message);
+    catch (err) {
+        res.send("Error " + err.message);
     }
 })
 
 
 
 main()
-.then(async ()=>{
-    console.log("Connected to DB")
-    app.listen(3000, ()=>{
-        console.log("Listening at port 3000");
+    .then(async () => {
+        console.log("Connected to DB")
+        app.listen(3000, () => {
+            console.log("Listening at port 3000");
+        })
     })
-})
-.catch((err)=>console.log(err));
+    .catch((err) => console.log(err));
 
 
 
